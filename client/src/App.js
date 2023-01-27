@@ -1,14 +1,12 @@
 import React from "react";
-import { Button } from "@material-ui/core";
+import Calculator from "./pages/Calculator";
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <Button variant="contained" color="primary">
-        Press me!
-      </Button>
+    <div>
+      <Calculator />
     </div>
-  );
-}
+  )
+};
 
 export default App;
