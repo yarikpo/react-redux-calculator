@@ -1,5 +1,8 @@
 import React from "react";
 import { Button, Grid, TextField, withStyles } from "@material-ui/core";
+import historyActions from '../actions/history';
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
 
 const styles = () => ({
     root: {
@@ -50,6 +53,7 @@ class Calculator extends React.Component {
         this.handleSymbolClick = this.handleSymbolClick.bind(this);
         this.setInputField = this.setInputField.bind(this);
         this.clearInputField = this.clearInputField.bind(this);
+        this.handleEqualsClick = this.handleEqualsClick.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -61,8 +65,12 @@ class Calculator extends React.Component {
     }
 
     handleNumberClick(number) {
-        if (this.state.leftNumber === '0' && number === '0') return;
-        if (this.state.leftNumber === '0') {
+        if (this.state.leftNumber === '0' 
+            && this.state.symbol == null 
+            && number === '0') {
+            return;
+        }
+        if (this.state.leftNumber === '0' && this.state.symbol == null) {
             this.setState({ leftNumber: number });
             return;
         }
@@ -81,13 +89,14 @@ class Calculator extends React.Component {
 
     handleSymbolClick(symb) {
         if (this.state.leftNumber.length === 0) return;
+        if (this.state.rightNumber.length > 0) this.handleEqualsClick();
         this.setState({ symbol: symb });
     }
 
     setInputField() {
         let newTextField = (this.state.leftNumber.length === 0 ? '' : this.state.leftNumber)
         + (this.state.symbol === null ? '' : this.state.symbol)
-        + (this.state.rightNumber.length === 0 ? '' : this.state.rightNumber);
+        + (this.state.rightNumber.length === 0 ? '' : this.state.rightNumber);        
         this.setState({
             inputFieldText: newTextField
         })
@@ -102,10 +111,60 @@ class Calculator extends React.Component {
         });
     }
 
+    handleEqualsClick() {
+        if (this.state.leftNumber.length > 0
+            && this.state.symbol != null
+            && this.state.rightNumber.length > 0
+            && this.state.inputFieldText.length > 0) {
+
+            let newTextField = (this.state.leftNumber.length === 0 ? '' : this.state.leftNumber)
+            + (this.state.symbol === null ? '' : this.state.symbol)
+            + (this.state.rightNumber.length === 0 ? '' : this.state.rightNumber);
+            let result = '';
+            if (this.state.symbol === '+') {
+                result = (
+                    parseInt(this.state.leftNumber) 
+                    + parseInt(this.state.rightNumber)
+                ).toString();
+            }
+            if (this.state.symbol === '-') {
+                result = (
+                    parseInt(this.state.leftNumber) 
+                    - parseInt(this.state.rightNumber)
+                ).toString();
+            }
+            if (this.state.symbol === 'X') {
+                result = (
+                    parseInt(this.state.leftNumber) 
+                    * parseInt(this.state.rightNumber)
+                ).toString();
+            }
+            if (this.state.symbol === '/') {
+                if (this.state.rightNumber === '0') result = 'Error division by zero';
+                else result = Math.floor(
+                    parseInt(this.state.leftNumber) 
+                    / parseInt(this.state.rightNumber)
+                ).toString();
+            }
+
+            this.props.actionAddHistory({solution: newTextField + '=' + result});
+            this.setState({
+                inputFieldText: result,
+                leftNumber: result === 'Error division by zero' ? '0' : result,
+                symbol: null,
+                rightNumber: '',
+            });
+        }
+    }
+
     render() {
-        console.log(this.state);
+        console.log({state: this.state});
+        console.log({props: this.props});
         const {
-            classes
+            classes,
+            isLoading,
+            // isError,
+            list,
         } = this.props;
         const {
             inputFieldText
@@ -265,6 +324,7 @@ class Calculator extends React.Component {
                     </Grid>
                     <Grid item xs={3} sm={1}>
                         <Button 
+                            onClick={() => this.handleEqualsClick()}
                             className={classes.button} 
                             variant="contained" 
                             color="primary"
@@ -299,10 +359,39 @@ class Calculator extends React.Component {
 
                 {/* HISTORY */}
 
-                
+                {isLoading && (
+                    <div>
+                        Loading...
+                    </div>
+                )}
+                {!isLoading && (
+                    <div>
+                        {list.slice().reverse().map(history => (
+                            <div key={history.history.solution}>
+                                {history.history.solution}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+
             </div>
         );
     }
 }
 
-export default withStyles(styles)(Calculator);
+const mapStateToProps = (state) => ({
+    ...state,
+});
+
+const mapDispatchToProps = (dispatch) => {
+    const {
+        addHistory
+    } = bindActionCreators(historyActions, dispatch);
+
+    return ({
+        actionAddHistory: addHistory
+    });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Calculator));
