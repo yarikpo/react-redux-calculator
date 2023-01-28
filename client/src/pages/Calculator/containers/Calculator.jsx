@@ -5,10 +5,12 @@ import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import GridCalculator from "../components/GridCalculator";
 import HistoryCalculator from "../components/HistoryCalculator";
+import Alert from '@material-ui/lab/Alert';
 import { 
     getEqualsClickData, 
     getInputField, 
     numberClick, 
+    parseTemplate, 
     symbolClick, 
     updateComponent 
 } from "../functions/calculator";
@@ -21,6 +23,9 @@ const styles = () => ({
         width: 'auto',
         justifyContent: 'center'
     },
+    alert: {
+        display: 'none',
+    }
 });
 
 
@@ -35,6 +40,7 @@ class Calculator extends React.Component {
             symbol: null,
             rightNumber: '',
             solution: '',
+            inputCount: 1,
         };
 
         this.handleNumberClick = this.handleNumberClick.bind(this);
@@ -42,10 +48,40 @@ class Calculator extends React.Component {
         this.setInputField = this.setInputField.bind(this);
         this.clearInputField = this.clearInputField.bind(this);
         this.handleEqualsClick = this.handleEqualsClick.bind(this);
+        this.handleGetSolutions = this.handleGetSolutions.bind(this);
+        this.handleChangeInputCount = this.handleChangeInputCount.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState) {
         updateComponent(prevState, this.state, this.setInputField);
+    }
+
+    handleChangeInputCount(e) {
+        if (parseInt(e.target.value) < 2 || e.target.value === '') {
+            this.setState({
+                inputCount: 1
+            });
+            return;
+        }
+        this.setState({
+            inputCount: parseInt(e.target.value)
+        });
+    }
+
+    async handleGetSolutions() {
+        await this.props.receiveHistory({ count: this.state.inputCount });
+        this.props.templates.forEach(template => {
+            const {
+                newTextField,
+                result,
+            } = parseTemplate(template);
+    
+            this.props.actionAddHistory({
+                solution: newTextField + '=' + result
+            });
+        });
+        await this.props.receiveHistory({ count: 0 });
+        
     }
 
     handleNumberClick(number) {
@@ -97,17 +133,18 @@ class Calculator extends React.Component {
     }
 
     render() {
-        // console.log({state: this.state});
-        // console.log({props: this.props});
+        console.log({state: this.state});
+        console.log({props: this.props});
         const {
             classes,
             isLoading,
-            // isError,
+            isError,
             list,
         } = this.props;
         const {
             inputFieldText,
-            solution
+            solution,
+            inputCount
         } = this.state;
 
         return (
@@ -117,9 +154,17 @@ class Calculator extends React.Component {
                     clearInputField={this.clearInputField}
                     handleSymbolClick={this.handleSymbolClick}
                     handleNumberClick={this.handleNumberClick}
+                    handleGetSolutions={this.handleGetSolutions}
+                    handleChangeInputCount={this.handleChangeInputCount}
                     inputFieldText={inputFieldText}
+                    inputCount={inputCount}
                 />
-
+                <Alert 
+                    className={!isError ? classes.alert : ''}
+                    severity="error"
+                >
+                    Error: No connection to server.
+                </Alert>
                 <HistoryCalculator 
                     list={list}
                     isLoading={isLoading}
@@ -137,11 +182,13 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => {
     const {
-        addHistory
+        addHistory,
+        receiveHistoryTemplates
     } = bindActionCreators(historyActions, dispatch);
 
     return ({
-        actionAddHistory: addHistory
+        actionAddHistory: addHistory,
+        receiveHistory: receiveHistoryTemplates,
     });
 };
 

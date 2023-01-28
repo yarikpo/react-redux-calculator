@@ -1,5 +1,6 @@
 package ua.clamor1s.math.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE,
             value = "/math")
+@Slf4j
 public class MathController {
 
     @Autowired
@@ -20,9 +22,10 @@ public class MathController {
 
     @GetMapping(value = "/examples")
     @ResponseStatus(HttpStatus.OK)
+    @CrossOrigin(origins = "*")
     public SolutionsDto getSolutions(@RequestParam(required = false) Integer count) {
         if (count == null) count = 4;
-
+        log.info("Connected with count = " + count + '.');
         return service.generateRandomSolutions(count);
     }
 

@@ -1,10 +1,15 @@
-import { REQUEST_HISTORY, ERROR_RECEIVE_HISTORY, ADD_TO_HISTORY } 
-from "../actions/actionTypes";
+import { 
+    REQUEST_HISTORY, 
+    ERROR_RECEIVE_HISTORY, 
+    ADD_TO_HISTORY, 
+    RECEIVE_HISTORY 
+} from "../actions/actionTypes";
 
 const initialState = {
     isLoading: false,
     isError: false,
     list: [],
+    templates: [],
     name: 'History:',
 };
 
@@ -24,6 +29,14 @@ export default (state = initialState, action) => {
                 isError: false,
                 list: state.list.concat(action.history),
             };
+        }
+        case RECEIVE_HISTORY: {
+            return {
+                ...state,
+                isLoading: false,
+                isError: false,
+                templates: action.templates,
+            }
         }
         case ERROR_RECEIVE_HISTORY: {
             return {

@@ -16,7 +16,8 @@ const styles = () => ({
     },
     break: {
         flexBasis: '100%',
-        height: 10,
+        margin: '3px 0',
+        // height: 10,
     },
     inputField: {
         width: 300,
@@ -36,6 +37,9 @@ class GridCalculator extends React.Component {
             handleSymbolClick,
             handleNumberClick,
             inputFieldText,
+            handleGetSolutions,
+            handleChangeInputCount,
+            inputCount,
         } = this.props;
 
         return (
@@ -223,6 +227,28 @@ class GridCalculator extends React.Component {
                 variant='outlined'
                 color="primary"
             />
+            <div className={classes.break}></div>
+            <TextField 
+                className={classes.inputField}
+                label='Request solutions'
+                type="number"
+                InputLabelProps={{
+                    shrink: true,
+                }}
+                onChange={handleChangeInputCount}
+                value={inputCount}
+                variant='outlined'
+                color="primary"
+            />
+            <div className={classes.break}></div>
+            <Button 
+                onClick={() => handleGetSolutions(3)}
+                className={classes.inputField} 
+                variant="contained" 
+                color="primary"
+            >
+                Get Solutions
+            </Button>
             </>
         );
     }

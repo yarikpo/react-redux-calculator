@@ -80,3 +80,21 @@ export const getEqualsClickData = (state) => {
         result,
     };
 };
+
+export const parseTemplate = (template) => {
+    let leftNumber = template[0];
+    template = template.substring(1);
+    while (template.charCodeAt(0) >= 48 && template.charCodeAt(0) <= 57) {
+        leftNumber+= template.charAt(0);
+        template = template.substring(1);
+    }
+    let symbol = template.charAt(0);
+    template = template.substring(1);
+    let rightNumber = template;
+    
+    return getEqualsClickData({
+        leftNumber,
+        symbol,
+        rightNumber,
+    });
+};
