@@ -20,6 +20,11 @@ const errorReceiveHistory = () => ({
     type: ERROR_RECEIVE_HISTORY,
 });
 
+/**
+ * Adds solution to history
+ * Notice: setTimeout function is here to show works waiting for 
+ *  response from BE
+ */
 const addHistoryTimeout = (solution) => new Promise((resolve) => {
     setTimeout(
         () => resolve(addToHistory({solution})),
@@ -27,11 +32,18 @@ const addHistoryTimeout = (solution) => new Promise((resolve) => {
     );
 });
 
+/**
+ * Gets promise from server with array of solutions without "solution"
+ */
 const getTemplates = (count) => {
     const URL = `http://localhost:8080/math/examples?count=${count}`;
     return fetch(URL);
 }
 
+/**
+ * Waits unil response from BE and returns array of unsolved solutions
+ *  or an error
+ */
 const receiveHistoryTemplates = ({ count }) => (dispatch) => {
     dispatch(requestHistory());
     return getTemplates(count)
@@ -40,6 +52,9 @@ const receiveHistoryTemplates = ({ count }) => (dispatch) => {
             .catch(() => dispatch(errorReceiveHistory()));
 };
 
+/**
+ * Adds solved solution to history
+ */
 const addHistory = ({ solution }) => (dispatch) => {
     dispatch(requestHistory());
     return addHistoryTimeout(solution)

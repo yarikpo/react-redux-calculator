@@ -37,6 +37,10 @@ export const symbolClick = (symbol, state, handleEqualsClick) => {
     return { symbol };
 };
 
+/**
+ * Returns string which will be handled in upper input field
+ *  by left, right numbers and symbol between them
+ */
 export const getInputField = (state) => {
     let newTextField = (state.leftNumber.length === 0 ? '' : state.leftNumber)
         + (state.symbol === null ? '' : state.symbol)
@@ -44,6 +48,12 @@ export const getInputField = (state) => {
     return newTextField;
 };
 
+/**
+ * Solves problem
+ * Returns:
+ * full result like: '12+4=16'
+ * only result like: '16'
+ */
 export const getEqualsClickData = (state) => {
     let newTextField = (state.leftNumber.length === 0 ? '' : state.leftNumber)
     + (state.symbol === null ? '' : state.symbol)
@@ -81,6 +91,12 @@ export const getEqualsClickData = (state) => {
     };
 };
 
+/**
+ * Transforms not solved string to solved string
+ * For example:
+ * in: '12+4'
+ * out: '12+4=16'
+ */
 export const parseTemplate = (template) => {
     let leftNumber = template[0];
     template = template.substring(1);

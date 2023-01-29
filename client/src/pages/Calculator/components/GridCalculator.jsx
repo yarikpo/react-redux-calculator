@@ -17,7 +17,6 @@ const styles = () => ({
     break: {
         flexBasis: '100%',
         margin: '3px 0',
-        // height: 10,
     },
     inputField: {
         width: 300,
